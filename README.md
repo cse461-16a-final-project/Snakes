@@ -1,7 +1,7 @@
 # Snakes
 
 ## Gamestate
-```json
+```js
 GameState: {
   Snake: {
     body, // Array[(x, y)]
