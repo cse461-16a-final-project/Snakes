@@ -1,4 +1,4 @@
-var data = {
+/*var data = {
     "snakes": [{
         "body": [{
             "x": 3,
@@ -71,7 +71,7 @@ var data = {
             "y": 3
         }]
     }
-};
+};*/
 
 var config = {
 
@@ -96,18 +96,24 @@ var mainState = function(game) {
     this.scores;
 
     this.backgroundImage;
+    
+    // user input
+    this.upKey;
+    this.downKey;
+    this.leftKey;
+    this.rightKey;
 };
 
 mainState.prototype = {
     preload: function() {
-        /*this.soc = new WebSocket('ws://localhost:8000', ['game_state', 'key', 'new_user']);
+        this.soc = new WebSocket('ws://localhost:8000', ['game_state', 'key', 'new_user']);
         this.soc.onmessage = function(event) {
             this.gameState = JSON.parse(event.data);
             this.shouldUpdate = true;
-        }*/
+        }
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
-        this.shouldUpdate = true;
+        /*this.shouldUpdate = true;*/
     },
 
     create: function() {
@@ -120,18 +126,38 @@ mainState.prototype = {
         this.food = game.add.group();
 
         this.scores = [];
-
+        
+        this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     },
 
     update: function() {
-        this.gameState = data;
+        /*this.gameState = data;*/
 
         if (this.shouldUpdate) {
             this.renderFood();
             this.renderSnakes();
             this.shouldUpdate = false;
         }
-
+        
+        // keyboard user input
+        if (this.upKey.isDown) {
+            this.soc.send(Phaser.KeyCode.UP);
+        } else if (this.downKey.isDown) {
+            this.soc.send(Phaser.KeyCode.DOWN);
+        } else if (this.leftKey.isDown) {
+            this.soc.send(Phaser.KeyCode.LEFT);
+        } else if (this.rightKey.isDown) {
+            this.soc.send(Phaser.KeyCode.RIGHT);
+        }
+        
+        // get the next round of socket
+        this.soc.onmessage = function(event) {
+            this.gameState = JSON.parse(event.data);
+            this.shouldUpdate = true;
+        }
     },
 
     renderFood: function() {
