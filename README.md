@@ -6,11 +6,19 @@
 ## Gamestate
 ```js
 GameState: {
-  Snake: {
-    body, // Array[(x, y)]
-    name,
-    dir
-  },
+  Snake: [
+    {
+      body, // Array[(x, y)]
+      name,
+      dir
+    },
+    {
+      body, // Array[(x, y)]
+      name,
+      dir
+    },
+    ...
+  ],
   Food: {
     pos
   },
