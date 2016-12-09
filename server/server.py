@@ -58,9 +58,6 @@ class Server:
 
 	def runGame(self):
 		for snake in self.board.snakes.values():
-			# if snake.controlBuffer:
-				# user.lastDirection = user.controlBuffer.popleft()
-			# direction = user.lastDirection
 			snake.move()
 				# die
 		self.sio.sleep(0.2)
@@ -72,11 +69,6 @@ class Server:
 
 		# deploy as an eventlet WSGI server
 		eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 8000)), self.app, log_output=False)
-# class User:
-# 	def __init__(self):
-# 		self.controlBuffer = deque()
-# 		self.lastDirection = 0
-# 		self.snake = None
 
 if __name__ == '__main__':
 	server = Server()
