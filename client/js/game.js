@@ -102,15 +102,16 @@ var mainState = function(game) {
     this.downKey;
     this.leftKey;
     this.rightKey;
+    this.enterKey;
 };
 
 mainState.prototype = {
     preload: function() {
-        this.soc = new WebSocket('ws://localhost:8000', ['game_state', 'key', 'new_user']);
-        this.soc.onmessage = function(event) {
+        this.soc = io({transports: ['websocket'], upgrade: false});
+        this.soc.on('game_state', function(event) {
             this.gameState = JSON.parse(event.data);
             this.shouldUpdate = true;
-        }
+        });
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
         /*this.shouldUpdate = true;*/
@@ -131,6 +132,7 @@ mainState.prototype = {
         this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     },
 
     update: function() {
@@ -144,13 +146,15 @@ mainState.prototype = {
         
         // keyboard user input
         if (this.upKey.isDown) {
-            this.soc.send(Phaser.KeyCode.UP);
+            this.soc.emit('key', Phaser.KeyCode.UP);
         } else if (this.downKey.isDown) {
-            this.soc.send(Phaser.KeyCode.DOWN);
+            this.soc.emit('key', Phaser.KeyCode.DOWN);
         } else if (this.leftKey.isDown) {
-            this.soc.send(Phaser.KeyCode.LEFT);
+            this.soc.emit('key', Phaser.KeyCode.LEFT);
         } else if (this.rightKey.isDown) {
-            this.soc.send(Phaser.KeyCode.RIGHT);
+            this.soc.emit('key', Phaser.KeyCode.RIGHT);
+        } else if (this.enterKey.isDown) {
+            this.soc.emit('new_user', "test");
         }
         
         // get the next round of socket
@@ -158,6 +162,7 @@ mainState.prototype = {
             this.gameState = JSON.parse(event.data);
             this.shouldUpdate = true;
         }
+        
     },
 
     renderFood: function() {
