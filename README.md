@@ -6,7 +6,7 @@
 ## Gamestate
 ```js
 GameState: {
-  Snakes: [
+  snakes: [
     {
       body, // Array[(x, y)]
       name,
@@ -21,10 +21,10 @@ GameState: {
     },
     ...
   ],
-  Food: {
+  food: {
     pos
   },
-  Map: {
+  map: {
     size
   }
 }
