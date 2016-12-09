@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+	<title>Socket.IO Demo</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		#canvas {height: 400px; width: 400px; background-color: #000; }
+		#block {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 0px; top: 0px;}
+	</style>
+</head>
+<body>
+	<div id="canvas"></div>
+	<div id="block"></div>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io({transports: ['websocket'], upgrade: false});
+		socket.on('game state', function(msg){
+			console.log(msg);
+			var j = JSON.parse(msg);
+			var x = parseInt(j[0]);
+			var y = parseInt(j[1]);
+			console.log("X: " + x);
+			console.log("Y: " + y);
+			$("#block").css('top', y);
+			$("#block").css('left', x);
+		});
+		$(document).keydown(function(e){
+			socket.emit('key', e.keyCode);
+		});
+	</script>
+</body>
+</html>
