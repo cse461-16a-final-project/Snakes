@@ -1,4 +1,4 @@
-/*var data = {
+var data = {
     "snakes": [{
         "body": [{
             "x": 3,
@@ -71,7 +71,7 @@
             "y": 3
         }]
     }
-};*/
+};
 
 var config = {
 
@@ -94,40 +94,50 @@ var mainState = function(game) {
     this.snakes;
     this.food;
     this.scores;
+
+    this.backgroundImage;
 };
 
 mainState.prototype = {
     preload: function() {
-        this.soc = new WebSocket('ws://localhost:8000', ['game_state', 'key', 'new_user']);
+        /*this.soc = new WebSocket('ws://localhost:8000', ['game_state', 'key', 'new_user']);
         this.soc.onmessage = function(event) {
             this.gameState = JSON.parse(event.data);
             this.shouldUpdate = true;
-        }
+        }*/
+
+        this.backgroundImage = game.load.image('background', 'img/background.jpg');
+        this.shouldUpdate = true;
     },
 
     create: function() {
         this.dx = config.mapResolution.H / config.mapSize.H;
         this.dy = config.mapResolution.W / config.mapSize.W;
 
+        game.add.image(0, 0, 'background');
+
         this.snakes = game.add.group();
         this.food = game.add.group();
-        
+
         this.scores = [];
+
     },
 
     update: function() {
+        this.gameState = data;
+
         if (this.shouldUpdate) {
             this.renderFood();
             this.renderSnakes();
             this.shouldUpdate = false;
         }
-        
+
     },
 
     renderFood: function() {
         this.food.removeAll(true);
         this.gameState.food.pos.map((food) => {
-            this.food.add(this.renderSection(food.x * this.dx, food.y * this.dy, 0xF4DC42));
+            this.food.add(this.renderSection(food.x * this.dx, food.y * this.dy, 0xF4DC42, 'food'));
         });
     },
 
@@ -136,21 +146,32 @@ mainState.prototype = {
         this.snakes.removeAll(true);
 
         this.gameState.snakes.map((snake) => {
-            let color = Util.intToRgb(Util.hashCode(snake.name));
-            snake.body.map((section) => {
-                let sectionSprite = game.add.sprite();
-                this.snakes.add(this.renderSection(section.x * this.dx, section.y * this.dy, parseInt(color, 16)));
+            let color = parseInt(Util.intToRgb(Util.hashCode(snake.name)), 16);
+            snake.body.map((section, i) => {
+                let sectionImg = this.renderSection(section.x * this.dx, section.y * this.dy, color, 'snake');
+                sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
+                this.snakes.add(sectionImg);
+                console.log(sectionImg.tint);
             });
         });
     },
 
-    renderSection: function(x, y, color) {
+    renderSection: function(x, y, color, type, i=0) {
         let img = game.add.image(x, y);
         let graphics = game.add.graphics(0, 0);
         graphics.beginFill(color);
-        graphics.drawRect(0, 0, this.dx, this.dy);
+        if (type.startsWith('snake')) {
+            graphics.drawRect(0, 0, this.dx, this.dy);
+        } else if (type === 'food') {
+            let d = Math.min(this.dx, this.dy);
+            graphics.drawCircle(d/2, d/2, d);
+        }
         graphics.endFill();
         img.addChild(graphics);
+        if (type === 'snake-overlay'){
+            img.alpha = Math.max(0, 0.8 / (i + 1));
+        }
+        
         return img;
     },
 };
