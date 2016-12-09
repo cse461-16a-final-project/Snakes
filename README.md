@@ -6,7 +6,7 @@
 ## Gamestate
 ```js
 GameState: {
-  Snake: [
+  Snakes: [
     {
       body, // Array[(x, y)]
       name,
