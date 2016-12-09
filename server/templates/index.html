@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+	<title>Socket.IO Demo</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		#canvas {height: 800px; width: 800px; background-color: #000; }
+		#block1 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 0px; top: 0px;}
+		#block2 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 30px; top: 30px;}
+		#block3 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 140px; top: 140px;}
+		#block4 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 0px; top: 0px;}
+		#block5 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 30px; top: 30px;}
+		#block6 {height: 20px; width: 20px; background-color: #FFF; position: fixed; left: 140px; top: 140px;}
+	</style>
+</head>
+<body>
+	<div id="canvas"></div>
+	<div id="block1"></div>
+	<div id="block2"></div>
+	<div id="block3"></div>
+	<div id="block4"></div>
+	<div id="block5"></div>
+	<div id="block6"></div>
+	<button id="start">Start</button>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io({transports: ['websocket'], upgrade: false});
+		var started = false;
+		var sid = 0;
+		$("#start").on("click", function(){socket.emit('new_user', "");});
+		socket.on('game_state', function(msg){
+			if (started) {
+				var j = JSON.parse(msg);
+				
+				// console.log(j)
+				// var x = parseInt(j[0]);
+				// var y = parseInt(j[1]);
+				// console.log("X: " + x);
+				// console.log("Y: " + y);
+				// console.log(j["snakes"][0]["body"][0][0]*20);
+				// console.log(j["snakes"][0]["body"][0][1]*20);
+				// console.log(j["snakes"][0]["body"][1][0]*20);
+				// console.log(j["snakes"][0]["body"][1][1]*20);
+				// console.log(j["snakes"][0]["body"][2][0]*20);
+				// console.log(j["snakes"][0]["body"][2][1]*20);
+				$("#block1").css('left', j["snakes"][0]["body"][0][0] * 10);
+				$("#block1").css('top', j["snakes"][0]["body"][0][1] * 10);
+				$("#block2").css('left', j["snakes"][0]["body"][1][0] * 10);
+				$("#block2").css('top', j["snakes"][0]["body"][1][1] * 10);
+				$("#block3").css('left', j["snakes"][0]["body"][2][0] * 10);
+				$("#block3").css('top', j["snakes"][0]["body"][2][1] * 10);
+				// $("#block4").css('left', j["snakes"][1]["body"][0][0] * 10);
+				// $("#block4").css('top', j["snakes"][1]["body"][0][1] * 10);
+				// $("#block5").css('left', j["snakes"][1]["body"][1][0] * 10);
+				// $("#block5").css('top', j["snakes"][1]["body"][1][1] * 10);
+				// $("#block6").css('left', j["snakes"][1]["body"][2][0] * 10);
+				// $("#block6").css('top', j["snakes"][1]["body"][2][1] * 10);
+			}
+		});
+		socket.on('accept', function(msg){
+			started = true;
+			sid = msg;
+		});
+		$(document).keydown(function(e){
+			socket.emit('key', e.keyCode);
+		});
+	</script>
+</body>
+</html>
