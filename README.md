@@ -10,12 +10,14 @@ GameState: {
     {
       body, // Array[(x, y)]
       name,
-      dir
+      dir,
+      score
     },
     {
       body, // Array[(x, y)]
       name,
-      dir
+      dir,
+      score
     },
     ...
   ],
