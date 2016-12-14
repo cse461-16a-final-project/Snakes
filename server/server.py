@@ -48,7 +48,7 @@ class Server:
 
 	def update(self):
 		self.sio.emit('game_state', self.encoder.encode(self.board.toState()))
-		print self.encoder.encode(self.board.toState())
+		#print self.encoder.encode(self.board.toState())
 
 	def tick(self):
 		# pass
