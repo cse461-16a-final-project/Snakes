@@ -10,8 +10,6 @@ class Server:
 		self.sio = socketio.Server(async_mode='eventlet')
 		self.app = Flask(__name__)
 
-		# self.users = {}
-
 		self.board = Board()
 		self.thread = None
 
@@ -21,7 +19,15 @@ class Server:
 			if not self.thread:
 				self.thread = self.sio.start_background_task(self.runGame)
 				self.thread = self.sio.start_background_task(self.tick)
-			return render_template('index.html')
+			with open('../client/index.html', 'r') as f:
+				read_data = f.read()
+			return read_data
+
+		@self.app.route('/<path>/<filename>')
+		def serveFile(path, filename):
+			with open('../client/' + path + '/' + filename, 'r') as f:
+				read_data = f.read()
+			return read_data
 
 		@self.sio.on('connect')
 		def connect(sid, environ):
@@ -49,6 +55,7 @@ class Server:
 	def update(self):
 		self.sio.emit('game_state', self.encoder.encode(self.board.toState()))
 		#print self.encoder.encode(self.board.toState())
+
 
 	def tick(self):
 		# pass
