@@ -4,7 +4,7 @@
 * Server-side: Socket.io
 
 ## Gamestate
-```{"foods": [[13, 49]], "snakes": [{"body": [[66, 33]], "sid": "dc514ab3dafb400bba7edfbfe27c3bd5"}]}```
+```{"ping": 141428290002, "foods": [[13, 49]], "snakes": [{"body": [[66, 33]], "sid": "dc514ab3dafb400bba7edfbfe27c3bd5"}]}```
 ```js
 GameState: {
   snakes: [
