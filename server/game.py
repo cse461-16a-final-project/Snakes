@@ -11,14 +11,16 @@ class Board:
 		self.addFood()
 	
 	def addFood(self):
-		self.foods.add(self.getRandomLocation())
+		if len(self.foods) < 80 * 80 * 0.05:
+			self.foods.add(self.getRandomLocation())
 
 	def removeFood(self, location):
 		self.foods.remove(location)
 		self.addFood()
 
 	def removeSnake(self, sid):
-		self.foods.update(set(self.snakes[sid].body))
+		if len(self.foods) < 80 * 80 * 0.05:
+			self.foods.update(set(self.snakes[sid].body))
 		del self.snakes[sid]
 		print sid, "dead"
 	
