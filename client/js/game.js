@@ -258,12 +258,13 @@ mainState.prototype = {
     renderPing: function() {
         var serverTime = this.gameState.ping;
         var localTime = Date.now();
+        var ping = Math.max(0, (localTime - serverTime));
 
         if (this.pingText) {
             this.pingText.destroy();
         }
 
-        this.pingText = game.add.text(810, 640, "Ping: " + (localTime - serverTime) + ' ms', { font: "20px Arial", fill: '#FFF' });
+        this.pingText = game.add.text(810, 640, "Ping: " + ping + ' ms', { font: "20px Arial", fill: '#FFF' });
     },
 };
 
