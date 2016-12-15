@@ -276,9 +276,6 @@ mainState.prototype = {
             this.pingText.destroy();
         }
         
-        console.log(localTime);
-        console.log(serverTime);
-        
         this.pingText = game.add.text(810, 640, "Ping: " + (localTime - serverTime) + ' ms', { font: "20px Arial", fill: '#FFF' });
     },
 };
