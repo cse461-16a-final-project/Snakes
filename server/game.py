@@ -5,6 +5,14 @@ class Board:
 	def __init__(self):
 		self.snakes = {}
 		self.foods = set()
+		self.walls = set()
+
+	def setUpWalls(self):
+		# hard code a regions walls
+		pass
+
+	def reachUpperFood(self):
+		return len(self.foods) < 80 * 80 * 0.01
 
 	def addSnake(self, sid, name):
 		snake = Snake(self, sid, name)
@@ -12,16 +20,16 @@ class Board:
 		self.addFood()
 	
 	def addFood(self):
-		if len(self.foods) < 80 * 80 * 0.01:
-			self.foods.add(self.getRandomLocation())
+		self.foods.add(self.getRandomLocation())
 
 	def removeFood(self, location):
 		self.foods.remove(location)
-		self.addFood()
+		if reachUpperFood():
+			self.addFood()
 
 	def removeSnake(self, sid):
 		print len(self.foods)
-		if len(self.foods) < 80 * 80 * 0.01:
+		if reachUpperFood():
 			self.foods.update(set(self.snakes[sid].body))
 		del self.snakes[sid]
 		print sid, "dead"
@@ -38,8 +46,8 @@ class Board:
 				return True
 		return False
 
-	def outOfBoard(self, location):
-		return not (0 <= location[0] < 80 and 0 <= location[1] < 80)
+	# def outOfBoard(self, location):
+	# 	return not (0 <= location[0] < 80 and 0 <= location[1] < 80)
 
 	def getRandomLocation(self):
 		x = None
@@ -53,6 +61,7 @@ class Board:
 		state = {}
 		state["snakes"] = [s.toState() for s in self.snakes.values()]
 		state["foods"] = list(self.foods)
+		state["time"]= int(round(time.time()))
 		return state
 
 class Snake:
@@ -65,7 +74,6 @@ class Snake:
 		self.name = name
 		self.body.append(self.board.getRandomLocation())
 		self.score = 1;
-		self.ping = int(round(time.time() * 1000))
 
 	# direction 0: left 1: up 2: right 3: down
 	def move(self):
@@ -85,7 +93,8 @@ class Snake:
 			nextHead = (head[0], head[1] + 1)
 		else:
 			assert(False)
-		if self.board.outOfBoard(nextHead) or self.board.isSnake(nextHead):
+		nextHead = ((nextHead[0] + 80) % 80, (nextHead[1] + 80) % 80)
+		if self.board.isSnake(nextHead):
 			self.board.removeSnake(self.sid)
 		elif self.board.isFood(nextHead):
 			self.board.removeFood(nextHead)
@@ -94,7 +103,6 @@ class Snake:
 		else:
 			self.body.append(nextHead)
 			self.body.popleft()
-		self.ping = int(round(time.time() * 1000))
 
 	def toState(self):
 		state = {}
@@ -102,5 +110,4 @@ class Snake:
 		state["sid"] = self.sid
 		state["name"] = self.name
 		state["score"] = self.score
-		state["ping"] = self.ping
 		return state
