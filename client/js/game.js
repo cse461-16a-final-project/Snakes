@@ -12,8 +12,6 @@ var mainState = function(game) {
     this.soc;
 
     this.gameState = {foods: [], snakes: []};
-    this.shouldUpdate;
-
     this.dx, this.dy;
 
     this.snakes;
@@ -56,8 +54,6 @@ mainState.prototype = {
 
         var updateState = function(event) {
             this.gameState = JSON.parse(event);
-            this.shouldUpdate = true;
-
             this.renderfoods();
             this.renderSnakes();
             this.renderScores();
@@ -103,7 +99,7 @@ mainState.prototype = {
         this.startButton.width = 180;
 
         this.nameInput = this.renderUserNameInputField();
-        
+
         var titleColors = ["#ffd700", "#c0c0c0", "#b87333"];
         for ( var i = 0; i < 3; i++ ) {
             game.add.text(800, 100*i, (i+1) + "th place:", {font: "30px Arial", fill: titleColors[i]} );
@@ -111,15 +107,6 @@ mainState.prototype = {
     },
 
     update: function() {
-        /*this.gameState = data;*/
-
-        // if (this.shouldUpdate) {
-        //     //log('state', this.gameState);
-        //     this.renderfoods();
-        //     this.renderSnakes();
-        //     this.renderScores();
-        //     this.shouldUpdate = false;
-        // }
     },
 
     renderfoods: function() {
@@ -194,7 +181,7 @@ mainState.prototype = {
                 user_score = score;
             }
         });
-        
+
         this.displayRankScore(first_name, first_score, second_name, second_score, third_name, third_score);
         this.displayClientScore(user_score);
     },
@@ -267,15 +254,15 @@ mainState.prototype = {
         });
         return inputBox;
     },
-    
+
     renderPing: function() {
         var serverTime = this.gameState.ping;
         var localTime = Date.now();
-        
+
         if (this.pingText) {
             this.pingText.destroy();
         }
-        
+
         this.pingText = game.add.text(810, 640, "Ping: " + (localTime - serverTime) + ' ms', { font: "20px Arial", fill: '#FFF' });
     },
 };
