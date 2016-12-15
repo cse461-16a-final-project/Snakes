@@ -87,7 +87,7 @@ var mainState = function(game) {
     this.soc;
 
     this.gameState = {foods: [], snakes: []};
-    //    this.shouldUpdate;
+    this.shouldUpdate;
 
     this.dx, this.dy;
 
@@ -115,14 +115,14 @@ var log = function(head, o) {
 mainState.prototype = {
     preload: function() {
         this.soc = io({transports: ['websocket'], upgrade: false});
-        
+
         var updateState = function(event) {
             log('event', event);
             this.gameState = JSON.parse(event);
             log('local', this.gameState);
-            // this.shouldUpdate = true;
+            this.shouldUpdate = true;
         }.bind(this);
-        
+
         this.soc.on('game_state', updateState);
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
@@ -140,7 +140,7 @@ mainState.prototype = {
         this.foods = game.add.group();
 
         this.scores = [];
-        
+
         var keyPressed = function(keyCode) {
             this.soc.emit('key', keyCode);
         }
@@ -149,7 +149,7 @@ mainState.prototype = {
         this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
-        
+
         this.upKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.UP); }, this);
         this.downKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.DOWN); }, this);
         this.leftKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.LEFT); }, this);
@@ -162,12 +162,12 @@ mainState.prototype = {
     update: function() {
         /*this.gameState = data;*/
 
-        //        if (this.shouldUpdate) {
-        log('state', this.gameState);
-        this.renderfoods();
-        this.renderSnakes();
-        //            this.shouldUpdate = false;
-        //        }
+        if (this.shouldUpdate) {
+            log('state', this.gameState);
+            this.renderfoods();
+            this.renderSnakes();
+            this.shouldUpdate = false;
+        }
     },
 
     renderfoods: function() {
