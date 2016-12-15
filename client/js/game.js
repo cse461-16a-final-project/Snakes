@@ -75,7 +75,7 @@
 
 var config = {
 
-    resolution: { W: 800, H: 800 },
+    resolution: { W: 1000, H: 800 },
 
     mapResolution: { W: 800, H: 800 },
 
@@ -96,13 +96,15 @@ var mainState = function(game) {
     this.scores;
 
     this.backgroundImage;
-    
+
     // user input
     this.upKey;
     this.downKey;
     this.leftKey;
     this.rightKey;
     this.enterKey;
+
+    this.startButton;
 };
 
 mainState.prototype = {
@@ -114,6 +116,7 @@ mainState.prototype = {
         });
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
+        game.load.spritesheet('button', 'img/startButton.png');
         /*this.shouldUpdate = true;*/
     },
 
@@ -127,12 +130,15 @@ mainState.prototype = {
         this.food = game.add.group();
 
         this.scores = [];
-        
+
         this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
         this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+
+        this.startButton = game.add.button(810, 725, 'button', this.actionOnClick, this, 2, 1, 0);
+        this.startButton.width = 180;
     },
 
     update: function() {
@@ -143,7 +149,7 @@ mainState.prototype = {
             this.renderSnakes();
             this.shouldUpdate = false;
         }
-        
+
         // keyboard user input
         if (this.upKey.isDown) {
             this.soc.emit('key', Phaser.KeyCode.UP);
@@ -156,13 +162,13 @@ mainState.prototype = {
         } else if (this.enterKey.isDown) {
             this.soc.emit('new_user', "test");
         }
-        
+
         // get the next round of socket
         this.soc.onmessage = function(event) {
             this.gameState = JSON.parse(event.data);
             this.shouldUpdate = true;
         }
-        
+
     },
 
     renderFood: function() {
@@ -202,8 +208,22 @@ mainState.prototype = {
         if (type === 'snake-overlay'){
             img.alpha = Math.max(0, 0.8 / (i + 1));
         }
-        
+
         return img;
+    },
+
+    generateRandomUserId: function(length) {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for( var i = 0; i < length; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+    },
+
+    actionOnClick: function() {
+        this.soc.emit('new_user', this.generateRandomUserId(8));
     },
 };
 
