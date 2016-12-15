@@ -75,7 +75,7 @@
 
 var config = {
 
-    resolution: { W: 800, H: 800 },
+    resolution: { W: 1000, H: 800 },
 
     mapResolution: { W: 800, H: 800 },
 
@@ -103,6 +103,8 @@ var mainState = function(game) {
     this.leftKey;
     this.rightKey;
     this.enterKey;
+    
+    this.startButton;
 };
 
 mainState.prototype = {
@@ -114,6 +116,7 @@ mainState.prototype = {
         });
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
+        game.load.spritesheet('button', 'img/startButton.png');
         /*this.shouldUpdate = true;*/
     },
 
@@ -133,6 +136,9 @@ mainState.prototype = {
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
         this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        
+        this.startButton = game.add.button(810, 760, 'button', this.actionOnClick, this, 2, 1, 0);
+        this.startButton.scale.setTo(0.5, 0.5);
     },
 
     update: function() {
@@ -204,6 +210,10 @@ mainState.prototype = {
         }
         
         return img;
+    },
+    
+    actionOnClick: function() {
+        this.soc.emit('new_user', "test");
     },
 };
 
