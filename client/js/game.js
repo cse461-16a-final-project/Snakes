@@ -1,78 +1,3 @@
-/*var data = {
-    "snakes": [{
-        "body": [{
-            "x": 3,
-            "y": 6
-        }, {
-            "x": 4,
-            "y": 6
-        }, {
-            "x": 4,
-            "y": 5
-        }],
-        "name": "TestTestTest",
-        "dir": 1,
-        "score": 10
-    }, {
-        "body": [{
-            "x": 41,
-            "y": 42
-        }, {
-            "x": 42,
-            "y": 42
-        }, {
-            "x": 42,
-            "y": 43
-        }, {
-            "x": 42,
-            "y": 44
-        }, {
-            "x": 42,
-            "y": 45
-        }, {
-            "x": 42,
-            "y": 46
-        },{
-            "x": 42,
-            "y": 47
-        },{
-            "x": 42,
-            "y": 48
-        },{
-            "x": 42,
-            "y": 49
-        },{
-            "x": 42,
-            "y": 50
-        },{
-            "x": 43,
-            "y": 50
-        },{
-            "x": 43,
-            "y": 51
-        },{
-            "x": 44,
-            "y": 51
-        }],
-        "name": "YesYesYes",
-        "dir": "",
-        "score": 21
-    }],
-
-    "foods": {
-        "pos": [{
-            "x": 2,
-            "y": 1
-        }, {
-            "x": 56,
-            "y": 34
-        }, {
-            "x": 79,
-            "y": 3
-        }]
-    }
-};*/
-
 var config = {
 
     resolution: { W: 1000, H: 800 },
@@ -107,7 +32,9 @@ var mainState = function(game) {
     this.startButton;
     this.colors;
     this.rankTexts;
+    this.clientScoreText;
     this.nameInput;
+    this.colorStr;
 };
 
 var log = function(head, o) {
@@ -119,13 +46,14 @@ var log = function(head, o) {
 mainState.prototype = {
     preload: function() {
         game.add.plugin(Fabrique.Plugins.InputField);
+        this.renderfoods = this.renderfoods.bind(this);
+        this.renderSnakes = this.renderSnakes.bind(this);
+        this.renderScores = this.renderScores.bind(this);
 
         this.soc = io({transports: ['websocket'], upgrade: false});
 
         var updateState = function(event) {
-            //log('event', event);
             this.gameState = JSON.parse(event);
-            //log('local', this.gameState);
             this.shouldUpdate = true;
 
             this.renderfoods();
@@ -137,10 +65,10 @@ mainState.prototype = {
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
         game.load.spritesheet('button', 'img/startButton.png');
-        /*this.shouldUpdate = true;*/
 
         this.colors = ["#ffd700", "#c0c0c0", "#b87333"];
         this.rankTexts = [null, null, null];
+        this.clientScoreText = null;
     },
 
     create: function() {
@@ -191,6 +119,7 @@ mainState.prototype = {
     },
 
     renderfoods: function() {
+        if (!this.foods) return;
         this.foods.removeAll(true);
         this.gameState.foods.map((foods) => {
             this.foods.add(this.renderSection(foods[0] * this.dx, foods[1] * this.dy, 0xF4DC42, 'foods'));
@@ -199,10 +128,12 @@ mainState.prototype = {
 
     renderSnakes: function() {
         // Clear the previously rendered snakes
+        if (!this.snakes) return;
         this.snakes.removeAll(true);
 
         this.gameState.snakes.map((snake) => {
-            let color = parseInt(Util.intToRgb(Util.hashCode(snake.name)), 16);
+            this.colorStr = Util.intToRgb(Util.hashCode(snake.name));
+            let color = parseInt(this.colorStr, 16);
             snake.body.map((section, i) => {
                 let sectionImg = this.renderSection(section[0] * this.dx, section[1] * this.dy, color, 'snake');
 
@@ -221,6 +152,8 @@ mainState.prototype = {
         let first_name = "";
         let second_name = "";
         let third_name = "";
+
+        let user_score = 0;
 
         this.gameState.snakes.map((snake) => {
             let score = snake.body.length;
@@ -246,9 +179,13 @@ mainState.prototype = {
                 third_score = score;
             }
 
+            if (this.nameInput.text.text === snake.name) {
+                user_score = score;
+            }
         });
-
-        this.displayScore(first_name, first_score, second_name, second_score, third_name, third_score);
+        
+        this.displayRankScore(first_name, first_score, second_name, second_score, third_name, third_score);
+        this.displayClientScore(user_score);
     },
 
     renderSection: function(x, y, color, type, i=0) {
@@ -282,32 +219,43 @@ mainState.prototype = {
     },
 
     actionOnClick: function() {
-        this.soc.emit('new_user', this.generateRandomUserId(8));
+        this.soc.emit('new_user', this.nameInput.text.text);
     },
 
-    displayScore: function(fn, fs, sn, ss, tn, ts) {
+    displayRankScore: function(fn, fs, sn, ss, tn, ts) {
         var names = [fn, sn, tn];
         var scores = [fs, ss, ts];
 
         for ( var i = 0; i < 3; i++ ) {
+            if (this.rankTexts[i] != null) {
+                this.rankTexts[i].destroy();
+            }
             if (names[i] != "") {
-                if (this.rankTexts[i] != null)
-                    this.rankTexts[i].destroy();
                 this.rankTexts[i] = game.add.text(800, 50+100*i, names[i] +
-                  "    " + scores[i], {font: "20px Arial", fill: this.colors[i]} );
+                                                  "    " + scores[i], {font: "20px Arial", fill: this.colors[i]} );
             }
         }
     },
 
+    displayClientScore: function(score) {
+        if (this.clientScoreText != null) {
+            this.clientScoreText.destroy();
+        }
+
+        this.clientScoreText = game.add.text(810, 650, "Current score:" +
+                                             "    " + score, {font: "20px Arial", fill: "#" + this.colorStr} );
+    },
+
     renderUserNameInputField: function() {
-        var inputBox = game.add.inputField(810, 700, {
-            width: 80,
+        var inputBox = game.add.inputField(810, 690, {
+            width: 170,
             height: 20,
             padding: 4,
             borderColor: '#fff',
             placeHolder: 'The name of your snake',
         });
-    }
+        return inputBox;
+    },
 };
 
 var game = new Phaser.Game(config.resolution.W, config.resolution.H, Phaser.AUTO, 'gameDiv');
