@@ -35,6 +35,7 @@ var mainState = function(game) {
     this.clientScoreText;
     this.nameInput;
     this.colorStr;
+    this.pingText;
 };
 
 var log = function(head, o) {
@@ -49,6 +50,7 @@ mainState.prototype = {
         this.renderfoods = this.renderfoods.bind(this);
         this.renderSnakes = this.renderSnakes.bind(this);
         this.renderScores = this.renderScores.bind(this);
+        this.renderPing = this.renderPing.bind(this);
 
         this.soc = io({transports: ['websocket'], upgrade: false});
 
@@ -59,6 +61,7 @@ mainState.prototype = {
             this.renderfoods();
             this.renderSnakes();
             this.renderScores();
+            this.renderPing();
         }.bind(this);
 
         this.soc.on('game_state', updateState);
@@ -66,7 +69,7 @@ mainState.prototype = {
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
         game.load.spritesheet('button', 'img/startButton.png');
 
-        this.colors = ["#ffd700", "#c0c0c0", "#b87333"];
+        this.colors = [null, null, null];
         this.rankTexts = [null, null, null];
         this.clientScoreText = null;
     },
@@ -100,9 +103,10 @@ mainState.prototype = {
         this.startButton.width = 180;
 
         this.nameInput = this.renderUserNameInputField();
-
+        
+        var titleColors = ["#ffd700", "#c0c0c0", "#b87333"];
         for ( var i = 0; i < 3; i++ ) {
-            game.add.text(800, 100*i, (i+1) + "th place:", {font: "30px Arial", fill: this.colors[i]} );
+            game.add.text(800, 100*i, (i+1) + "th place:", {font: "30px Arial", fill: titleColors[i]} );
         }
     },
 
@@ -157,26 +161,33 @@ mainState.prototype = {
 
         this.gameState.snakes.map((snake) => {
             let score = snake.body.length;
+            let clientColor = "#" + Util.intToRgb(Util.hashCode(snake.name));
 
             if (score > first_score) {
                 // update the 2ed and 3rd place before update itself
                 third_name = second_name;
                 third_score = second_score;
+                this.colors[2] = this.colors[1];
                 second_name = first_name;
                 second_score = first_score;
+                this.colors[1] = this.colors[0];
 
                 first_name = snake.name;
                 first_score = score;
+                this.colors[0] = clientColor;
             } else if (score > second_score) {
                 // update the 3rd place before update itself
                 third_name = second_name;
                 third_score = second_score;
+                this.colors[2] = this.colors[1];
 
                 second_name = snake.name;
                 second_score = score;
+                this.colors[1] = clientColor;
             } else if (score > third_score) {
                 third_name = snake.name;
                 third_score = score;
+                this.colors[2] = clientColor;
             }
 
             if (this.nameInput.text.text === snake.name) {
@@ -242,7 +253,7 @@ mainState.prototype = {
             this.clientScoreText.destroy();
         }
 
-        this.clientScoreText = game.add.text(810, 650, "Current score:" +
+        this.clientScoreText = game.add.text(810, 660, "Current score:" +
                                              "    " + score, {font: "20px Arial", fill: "#" + this.colorStr} );
     },
 
@@ -255,6 +266,20 @@ mainState.prototype = {
             placeHolder: 'The name of your snake',
         });
         return inputBox;
+    },
+    
+    renderPing: function() {
+        var serverTime = this.gameState.ping;
+        var localTime = Date.now();
+        
+        if (this.pingText) {
+            this.pingText.destroy();
+        }
+        
+        console.log(localTime);
+        console.log(serverTime);
+        
+        this.pingText = game.add.text(810, 640, "Ping: " + (localTime - serverTime) + ' ms', { font: "20px Arial", fill: '#FFF' });
     },
 };
 
