@@ -104,6 +104,8 @@ var mainState = function(game) {
     this.rightKey;
 
     this.startButton;
+    this.colors;
+    this.rankTexts;
 };
 
 var log = function(head, o) {
@@ -117,9 +119,9 @@ mainState.prototype = {
         this.soc = io({transports: ['websocket'], upgrade: false});
 
         var updateState = function(event) {
-            log('event', event);
+            //log('event', event);
             this.gameState = JSON.parse(event);
-            log('local', this.gameState);
+            //log('local', this.gameState);
             this.shouldUpdate = true;
         }.bind(this);
 
@@ -128,6 +130,9 @@ mainState.prototype = {
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
         game.load.spritesheet('button', 'img/startButton.png');
         /*this.shouldUpdate = true;*/
+        
+        this.colors = ["#ffd700", "#c0c0c0", "#b87333"];
+        this.rankTexts = [null, null, null];
     },
 
     create: function() {
@@ -157,15 +162,20 @@ mainState.prototype = {
 
         this.startButton = game.add.button(810, 725, 'button', this.actionOnClick, this, 2, 1, 0);
         this.startButton.width = 180;
+        
+        for ( var i = 0; i < 3; i++ ) {
+            game.add.text(800, 100*i, (i+1) + "th place:", {font: "30px Arial", fill: this.colors[i]} );
+        }
     },
 
     update: function() {
         /*this.gameState = data;*/
 
         if (this.shouldUpdate) {
-            log('state', this.gameState);
+            //log('state', this.gameState);
             this.renderfoods();
             this.renderSnakes();
+            this.renderScores();
             this.shouldUpdate = false;
         }
     },
@@ -190,6 +200,45 @@ mainState.prototype = {
                 this.snakes.add(sectionImg);
             });
         });
+    },
+    
+    renderScores: function() {
+        this.scores = [];
+        
+        let first_score = 0;
+        let second_score = 0;
+        let third_score = 0;
+        let first_name = "";
+        let second_name = "";
+        let third_name = "";
+        
+        this.gameState.snakes.map((snake) => {
+            let score = snake.body.length;
+            
+            if (score > first_score) {
+                // update the 2ed and 3rd place before update itself
+                third_name = second_name;
+                third_score = second_score;
+                second_name = first_name;
+                second_score = first_score;
+                
+                first_name = snake.name;
+                first_score = score;
+            } else if (score > second_score) {
+                // update the 3rd place before update itself
+                third_name = second_name;
+                third_score = second_score;
+                
+                second_name = snake.name;
+                second_score = score;
+            } else if (score > third_score) {
+                third_name = snake.name;
+                third_score = score;
+            }
+            
+        });
+        
+        this.displayScore(first_name, first_score, second_name, second_score, third_name, third_score);
     },
 
     renderSection: function(x, y, color, type, i=0) {
@@ -225,6 +274,19 @@ mainState.prototype = {
     actionOnClick: function() {
         this.soc.emit('new_user', this.generateRandomUserId(8));
     },
+    
+    displayScore: function(fn, fs, sn, ss, tn, ts) {
+        var names = [fn, sn, tn];
+        var scores = [fs, ss, ts];
+        
+        for ( var i = 0; i < 3; i++ ) {
+            if (names[i] != "") {
+                if (this.rankTexts[i] != null)
+                    this.rankTexts[i].destroy();
+                this.rankTexts[i] = game.add.text(800, 50+100*i, names[i] + "    "+ scores[i], {font: "20px Arial", fill: this.colors[i]} );
+            }
+        }
+    }
 };
 
 var game = new Phaser.Game(config.resolution.W, config.resolution.H, Phaser.AUTO, 'gameDiv');
