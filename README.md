@@ -36,4 +36,3 @@ Enter website -> Enter player name -> Play the game -> Death, respawn
 ## Components
 * Main canvas managed by Phaser
 * Rank board
-* Killfeed/Notifications
