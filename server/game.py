@@ -1,5 +1,6 @@
 from collections import deque
 import random
+import time
 class Board:
 	def __init__(self):
 		self.snakes = {}
@@ -11,7 +12,7 @@ class Board:
 		self.addFood()
 	
 	def addFood(self):
-		if len(self.foods) < 80 * 80 * 0.05:
+		if len(self.foods) < 80 * 80 * 0.01:
 			self.foods.add(self.getRandomLocation())
 
 	def removeFood(self, location):
@@ -19,7 +20,8 @@ class Board:
 		self.addFood()
 
 	def removeSnake(self, sid):
-		if len(self.foods) < 80 * 80 * 0.05:
+		print len(self.foods)
+		if len(self.foods) < 80 * 80 * 0.01:
 			self.foods.update(set(self.snakes[sid].body))
 		del self.snakes[sid]
 		print sid, "dead"
@@ -62,6 +64,8 @@ class Snake:
 		self.direction = int(random.uniform(0, 3))
 		self.name = name
 		self.body.append(self.board.getRandomLocation())
+		self.score = 1;
+		self.ping = int(round(time.time() * 1000))
 
 	# direction 0: left 1: up 2: right 3: down
 	def move(self):
@@ -86,13 +90,17 @@ class Snake:
 		elif self.board.isFood(nextHead):
 			self.board.removeFood(nextHead)
 			self.body.append(nextHead)
+			self.score += 1
 		else:
 			self.body.append(nextHead)
 			self.body.popleft()
+		self.ping = int(round(time.time() * 1000))
 
 	def toState(self):
 		state = {}
 		state["body"] = list(self.body)
 		state["sid"] = self.sid
 		state["name"] = self.name
+		state["score"] = self.score
+		state["ping"] = self.ping
 		return state
