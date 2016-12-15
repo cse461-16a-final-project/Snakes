@@ -59,7 +59,7 @@
         "score": 21
     }],
 
-    "food": {
+    "foods": {
         "pos": [{
             "x": 2,
             "y": 1
@@ -92,7 +92,7 @@ var mainState = function(game) {
     this.dx, this.dy;
 
     this.snakes;
-    this.food;
+    this.foods;
     this.scores;
 
     this.backgroundImage;
@@ -127,7 +127,7 @@ mainState.prototype = {
         game.add.image(0, 0, 'background');
 
         this.snakes = game.add.group();
-        this.food = game.add.group();
+        this.foods = game.add.group();
 
         this.scores = [];
 
@@ -145,7 +145,7 @@ mainState.prototype = {
         /*this.gameState = data;*/
 
         if (this.shouldUpdate) {
-            this.renderFood();
+            this.renderfoods();
             this.renderSnakes();
             this.shouldUpdate = false;
         }
@@ -171,10 +171,10 @@ mainState.prototype = {
 
     },
 
-    renderFood: function() {
-        this.food.removeAll(true);
-        this.gameState.food.pos.map((food) => {
-            this.food.add(this.renderSection(food.x * this.dx, food.y * this.dy, 0xF4DC42, 'food'));
+    renderfoods: function() {
+        this.foods.removeAll(true);
+        this.gameState.foodss.pos.map((foods) => {
+            this.foods.add(this.renderSection(foods[0] * this.dx, foods[1] * this.dy, 0xF4DC42, 'foods'));
         });
     },
 
@@ -185,7 +185,7 @@ mainState.prototype = {
         this.gameState.snakes.map((snake) => {
             let color = parseInt(Util.intToRgb(Util.hashCode(snake.name)), 16);
             snake.body.map((section, i) => {
-                let sectionImg = this.renderSection(section.x * this.dx, section.y * this.dy, color, 'snake');
+                let sectionImg = this.renderSection(section[0] * this.dx, section[1] * this.dy, color, 'snake');
                 sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
                 this.snakes.add(sectionImg);
                 console.log(sectionImg.tint);
@@ -199,7 +199,7 @@ mainState.prototype = {
         graphics.beginFill(color);
         if (type.startsWith('snake')) {
             graphics.drawRect(0, 0, this.dx, this.dy);
-        } else if (type === 'food') {
+        } else if (type === 'foods') {
             let d = Math.min(this.dx, this.dy);
             graphics.drawCircle(d/2, d/2, d);
         }
