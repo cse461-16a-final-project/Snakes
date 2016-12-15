@@ -111,7 +111,8 @@ mainState.prototype = {
     preload: function() {
         this.soc = io({transports: ['websocket'], upgrade: false});
         this.soc.on('game_state', function(event) {
-            this.gameState = JSON.parse(event.data);
+            console.log(event);
+            this.gameState = JSON.parse(event);
             this.shouldUpdate = true;
         });
 
@@ -165,7 +166,7 @@ mainState.prototype = {
 
         // get the next round of socket
         this.soc.onmessage = function(event) {
-            this.gameState = JSON.parse(event.data);
+            this.gameState = JSON.parse(event);
             this.shouldUpdate = true;
         }
 
@@ -186,14 +187,17 @@ mainState.prototype = {
             let color = parseInt(Util.intToRgb(Util.hashCode(snake.name)), 16);
             snake.body.map((section, i) => {
                 let sectionImg = this.renderSection(section[0] * this.dx, section[1] * this.dy, color, 'snake');
+
                 sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
                 this.snakes.add(sectionImg);
-                console.log(sectionImg.tint);
+
+                console.log(sectionImg);
             });
         });
     },
 
     renderSection: function(x, y, color, type, i=0) {
+
         let img = game.add.image(x, y);
         let graphics = game.add.graphics(0, 0);
         graphics.beginFill(color);
