@@ -140,11 +140,20 @@ mainState.prototype = {
         this.foods = game.add.group();
 
         this.scores = [];
+        
+        var keyPressed = function(keyCode) {
+            this.soc.emit('key', keyCode);
+        }
 
         this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        
+        this.upKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.UP); }, this);
+        this.downKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.DOWN); }, this);
+        this.leftKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.LEFT); }, this);
+        this.rightKey.onDown.add(() => { this.soc.emit('key', Phaser.KeyCode.RIGHT); }, this);
 
         this.startButton = game.add.button(810, 725, 'button', this.actionOnClick, this, 2, 1, 0);
         this.startButton.width = 180;
@@ -159,18 +168,6 @@ mainState.prototype = {
         this.renderSnakes();
         //            this.shouldUpdate = false;
         //        }
-
-        // keyboard user input
-        if (this.upKey.isDown) {
-            this.soc.emit('key', Phaser.KeyCode.UP);
-        } else if (this.downKey.isDown) {
-            this.soc.emit('key', Phaser.KeyCode.DOWN);
-        } else if (this.leftKey.isDown) {
-            this.soc.emit('key', Phaser.KeyCode.LEFT);
-        } else if (this.rightKey.isDown) {
-            this.soc.emit('key', Phaser.KeyCode.RIGHT);
-        }
-
     },
 
     renderfoods: function() {
@@ -188,6 +185,7 @@ mainState.prototype = {
             let color = parseInt(Util.intToRgb(Util.hashCode(snake.name)), 16);
             snake.body.map((section, i) => {
                 let sectionImg = this.renderSection(section[0] * this.dx, section[1] * this.dy, color, 'snake');
+
                 sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
                 this.snakes.add(sectionImg);
             });
@@ -195,6 +193,7 @@ mainState.prototype = {
     },
 
     renderSection: function(x, y, color, type, i=0) {
+
         let img = game.add.image(x, y);
         let graphics = game.add.graphics(0, 0);
         graphics.beginFill(color);
@@ -207,7 +206,7 @@ mainState.prototype = {
         graphics.endFill();
         img.addChild(graphics);
         if (type === 'snake-overlay'){
-            img.alpha = Math.max(0, 0.8 / (i + 1));
+            img.alpha = Math.max(0, 1 - 1 / Math.log((i + 1), 2));
         }
 
         return img;

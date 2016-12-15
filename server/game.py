@@ -5,7 +5,8 @@ class Board:
 		self.snakes = {}
 		self.foods = set()
 
-	def addSnake(self, snake):
+	def addSnake(self, sid, name):
+		snake = Snake(self, sid, name)
 		self.snakes[snake.sid] = snake
 		self.addFood()
 	
@@ -21,6 +22,9 @@ class Board:
 		del self.snakes[sid]
 		print sid, "dead"
 	
+	def registerControl(self, sid, direction):
+		self.snakes[sid].controlBuffer.append(direction)
+
 	def isFood(self, location):
 		return location in self.foods
 
@@ -88,4 +92,5 @@ class Snake:
 		state = {}
 		state["body"] = list(self.body)
 		state["sid"] = self.sid
+		state["name"] = self.name
 		return state
