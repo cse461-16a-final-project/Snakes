@@ -86,7 +86,7 @@ var config = {
 var mainState = function(game) {
     this.soc;
 
-    this.gameState;
+    this.gameState = {foods: [], snakes: []};
     //    this.shouldUpdate;
 
     this.dx, this.dy;
@@ -110,7 +110,9 @@ mainState.prototype = {
     preload: function() {
         this.soc = io({transports: ['websocket'], upgrade: false});
         this.soc.on('game_state', function(event) {
+            console.log('===== event =====');
             console.log(event);
+            console.log('=================');
             this.gameState = JSON.parse(event);
             //            this.shouldUpdate = true;
         });
@@ -144,6 +146,9 @@ mainState.prototype = {
         /*this.gameState = data;*/
 
         //        if (this.shouldUpdate) {
+        console.log('===== state =====');
+        console.log(this.gameState);
+        console.log('=================');
         this.renderfoods();
         this.renderSnakes();
         //            this.shouldUpdate = false;
@@ -170,7 +175,7 @@ mainState.prototype = {
 
     renderfoods: function() {
         this.foods.removeAll(true);
-        this.gameState.foodss.pos.map((foods) => {
+        this.gameState.foods.map((foods) => {
             this.foods.add(this.renderSection(foods[0] * this.dx, foods[1] * this.dy, 0xF4DC42, 'foods'));
         });
     },
@@ -185,7 +190,6 @@ mainState.prototype = {
                 let sectionImg = this.renderSection(section[0] * this.dx, section[1] * this.dy, color, 'snake');
                 sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
                 this.snakes.add(sectionImg);
-                console.log(sectionImg.tint);
             });
         });
     },
