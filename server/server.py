@@ -36,17 +36,17 @@ class Server:
 		@self.sio.on('new_user')
 		def new_user(sid, data):
 			# user = User()
-			snake = Snake(self.board, sid, data)
+			# snake = Snake(self.board, sid, data)
 			# user.snake = snake
 			# self.users[sid] = user
-			self.board.addSnake(snake)
+			self.board.addSnake(sid, data)
 			self.sio.emit('accept', str(sid))
 
 		@self.sio.on('key')
 		def key(sid, data):
 			keyCode = int(data)
 			if keyCode >= 37 and keyCode <= 40 and sid in self.board.snakes:
-				self.board.snakes[sid].controlBuffer.append(keyCode - 37)
+				self.board.registerControl(sid, keyCode - 37)
 
 		@self.sio.on('disconnect')
 		def disconnect(sid):
@@ -54,7 +54,7 @@ class Server:
 
 	def update(self):
 		self.sio.emit('game_state', self.encoder.encode(self.board.toState()))
-		#print self.encoder.encode(self.board.toState())
+		print self.encoder.encode(self.board.toState())
 
 
 	def tick(self):
