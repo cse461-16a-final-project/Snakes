@@ -106,16 +106,24 @@ var mainState = function(game) {
     this.startButton;
 };
 
+var log = function(head, o) {
+    console.log('===== ' + head + ' =====');
+    console.log(o);
+    console.log('=================');
+}
+
 mainState.prototype = {
     preload: function() {
         this.soc = io({transports: ['websocket'], upgrade: false});
-        this.soc.on('game_state', function(event) {
-            console.log('===== event =====');
-            console.log(event);
-            console.log('=================');
+        
+        var updateState = function(event) {
+            log('event', event);
             this.gameState = JSON.parse(event);
-            //            this.shouldUpdate = true;
-        });
+            log('local', this.gameState);
+            // this.shouldUpdate = true;
+        }.bind(this);
+        
+        this.soc.on('game_state', updateState);
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
         game.load.spritesheet('button', 'img/startButton.png');
@@ -146,9 +154,7 @@ mainState.prototype = {
         /*this.gameState = data;*/
 
         //        if (this.shouldUpdate) {
-        console.log('===== state =====');
-        console.log(this.gameState);
-        console.log('=================');
+        log('state', this.gameState);
         this.renderfoods();
         this.renderSnakes();
         //            this.shouldUpdate = false;
@@ -163,12 +169,6 @@ mainState.prototype = {
             this.soc.emit('key', Phaser.KeyCode.LEFT);
         } else if (this.rightKey.isDown) {
             this.soc.emit('key', Phaser.KeyCode.RIGHT);
-        }
-
-        // get the next round of socket
-        this.soc.onmessage = function(event) {
-            this.gameState = JSON.parse(event.data);
-            //            this.shouldUpdate = true;
         }
 
     },
