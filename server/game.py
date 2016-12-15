@@ -92,4 +92,5 @@ class Snake:
 		state = {}
 		state["body"] = list(self.body)
 		state["sid"] = self.sid
+		state["name"] = self.name
 		return state

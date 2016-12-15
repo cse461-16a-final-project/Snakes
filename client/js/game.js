@@ -86,8 +86,8 @@ var config = {
 var mainState = function(game) {
     this.soc;
 
-    this.gameState;
-    this.shouldUpdate;
+    this.gameState = {foods: [], snakes: []};
+    //    this.shouldUpdate;
 
     this.dx, this.dy;
 
@@ -102,7 +102,6 @@ var mainState = function(game) {
     this.downKey;
     this.leftKey;
     this.rightKey;
-    this.enterKey;
 
     this.startButton;
 };
@@ -111,9 +110,11 @@ mainState.prototype = {
     preload: function() {
         this.soc = io({transports: ['websocket'], upgrade: false});
         this.soc.on('game_state', function(event) {
+            console.log('===== event =====');
             console.log(event);
+            console.log('=================');
             this.gameState = JSON.parse(event);
-            this.shouldUpdate = true;
+            //            this.shouldUpdate = true;
         });
 
         this.backgroundImage = game.load.image('background', 'img/background.jpg');
@@ -136,7 +137,6 @@ mainState.prototype = {
         this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
-        this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
         this.startButton = game.add.button(810, 725, 'button', this.actionOnClick, this, 2, 1, 0);
         this.startButton.width = 180;
@@ -145,11 +145,14 @@ mainState.prototype = {
     update: function() {
         /*this.gameState = data;*/
 
-        if (this.shouldUpdate) {
-            this.renderfoods();
-            this.renderSnakes();
-            this.shouldUpdate = false;
-        }
+        //        if (this.shouldUpdate) {
+        console.log('===== state =====');
+        console.log(this.gameState);
+        console.log('=================');
+        this.renderfoods();
+        this.renderSnakes();
+        //            this.shouldUpdate = false;
+        //        }
 
         // keyboard user input
         if (this.upKey.isDown) {
@@ -160,21 +163,20 @@ mainState.prototype = {
             this.soc.emit('key', Phaser.KeyCode.LEFT);
         } else if (this.rightKey.isDown) {
             this.soc.emit('key', Phaser.KeyCode.RIGHT);
-        } else if (this.enterKey.isDown) {
-            this.soc.emit('new_user', "test");
         }
 
         // get the next round of socket
         this.soc.onmessage = function(event) {
-            this.gameState = JSON.parse(event);
-            this.shouldUpdate = true;
+
+            this.gameState = JSON.parse(event.data);
+            //            this.shouldUpdate = true;
         }
 
     },
 
     renderfoods: function() {
         this.foods.removeAll(true);
-        this.gameState.foodss.pos.map((foods) => {
+        this.gameState.foods.map((foods) => {
             this.foods.add(this.renderSection(foods[0] * this.dx, foods[1] * this.dy, 0xF4DC42, 'foods'));
         });
     },
@@ -190,8 +192,6 @@ mainState.prototype = {
 
                 sectionImg.addChild(this.renderSection(0, 0, 0xFFFFFF, 'snake-overlay', i))
                 this.snakes.add(sectionImg);
-
-                console.log(sectionImg);
             });
         });
     },
