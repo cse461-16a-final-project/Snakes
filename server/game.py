@@ -53,6 +53,7 @@ class Board:
 		state = {}
 		state["snakes"] = [s.toState() for s in self.snakes.values()]
 		state["foods"] = list(self.foods)
+		state["ping"] = int(round(time.time() * 1000))
 		return state
 
 class Snake:
@@ -85,6 +86,7 @@ class Snake:
 			nextHead = (head[0], head[1] + 1)
 		else:
 			assert(False)
+		nextHead = ((nextHead[0] + 80) % 80, (nextHead[1] + 80) % 80)
 		if self.board.outOfBoard(nextHead) or self.board.isSnake(nextHead):
 			self.board.removeSnake(self.sid)
 		elif self.board.isFood(nextHead):
@@ -94,7 +96,6 @@ class Snake:
 		else:
 			self.body.append(nextHead)
 			self.body.popleft()
-		self.ping = int(round(time.time() * 1000))
 
 	def toState(self):
 		state = {}
@@ -102,5 +103,4 @@ class Snake:
 		state["sid"] = self.sid
 		state["name"] = self.name
 		state["score"] = self.score
-		state["ping"] = self.ping
 		return state
