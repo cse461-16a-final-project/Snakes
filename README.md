@@ -2,6 +2,7 @@
 ## Frameworks
 * Client-side: Phaser.io
 * Server-side: Socket.io
+  * requiredPackages: Flask, eventlet, python-socketio
 
 ## Gamestate
 ```{"ping": 141428290002, "foods": [[13, 49]], "snakes": [{"body": [[66, 33]], "sid": "dc514ab3dafb400bba7edfbfe27c3bd5"}]}```
